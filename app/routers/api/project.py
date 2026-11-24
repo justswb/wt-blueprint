@@ -36,5 +36,5 @@ async def open_project(req: OpenProjectReq, host: Annotated[str, Header(include_
 async def open_proejct(proj_id: UUID):
     rt.assert_project_loaded()
     if rt.project.id != proj_id:
-        raise HTTPException(HTTPStatus.NOT_FOUND, 'No loaded project with id ' + proj_id + ' was found')
+        raise HTTPException(HTTPStatus.NOT_FOUND, 'No loaded project with id ' + str(proj_id) + ' was found')
     return rt.project

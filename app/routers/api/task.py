@@ -19,7 +19,7 @@ async def create_task(task: Task):
 async def get_task(task_id: UUID):
     rt.assert_project_loaded()
     if not task_id in rt.project.tasks.keys():
-        raise HTTPException(HTTPStatus.NOT_FOUND, 'No task with id ' + task_id + ' was found')
+        raise HTTPException(HTTPStatus.NOT_FOUND, 'No task with id ' + str(task_id) + ' was found')
     return rt.project.tasks[task_id]
 
 @router.post('/{task_id}', status_code=HTTPStatus.ACCEPTED)
