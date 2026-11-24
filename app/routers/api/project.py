@@ -1,5 +1,5 @@
 from typing import Annotated
-from uuid import uuid7
+from uuid import UUID, uuid7
 from http import HTTPStatus
 
 from fastapi import APIRouter, Header, HTTPException
@@ -18,7 +18,7 @@ class CreateProjectReq(BaseModel):
 
 class OpenProjectReq(BaseModel):
     name: str
-    id: str
+    id: UUID
     pass
 
 
