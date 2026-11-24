@@ -7,5 +7,5 @@ from .task import Task
 class Project:
     id: UUID
     name: str
-    tasks: dict[UUID, Task] = field(default_factory=dict)
+    tasks: list[Task] = field(default_factory=list)
     pass
