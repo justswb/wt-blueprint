@@ -3,6 +3,7 @@ from typing import Dict, List
 from enum import Enum
 from uuid import UUID, uuid7
 
+from pydantic.json_schema import SkipJsonSchema
 from pydantic.dataclasses import dataclass
 
 @dataclass
@@ -21,7 +22,7 @@ class Task:
         pass
 
     name: str
-    id: UUID = uuid7()
+    id: SkipJsonSchema[UUID] = uuid7()
     desc: str = ''
     status: Status = Status.DRAFT
     relations: Dict[Relation, List[UUID]] = field(default_factory=dict)
