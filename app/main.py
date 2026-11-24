@@ -2,11 +2,12 @@ from http import HTTPStatus
 
 from fastapi import FastAPI, Request, HTTPException
 
-from .routers.api import project
+from .routers.api import project, task
 
 app = FastAPI()
 
 app.include_router(project.router)
+app.include_router(task.router)
 
 
 @app.get('/')
