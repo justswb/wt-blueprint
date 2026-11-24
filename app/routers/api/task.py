@@ -24,12 +24,12 @@ async def get_task(task_id: UUID):
 
 @router.post('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def update_task(task_id: UUID, task: Task):
-    await get_task(task_id)
-    task.id = task_id
+    task_prev = await get_task(task_id)
+    task.id = task_prev.id
     rt.project.tasks[task_id] = task
     return task
 
 @router.delete('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def delete_task(task_id: UUID):
-    await get_task(task_id)
-    return rt.project.tasks.pop(task_id)
+    task = await get_task(task_id)
+    return rt.project.tasks.pop(task.id)
