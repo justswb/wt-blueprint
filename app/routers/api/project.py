@@ -30,10 +30,10 @@ async def create_project(req: CreateProjectReq):
 async def open_project(req: OpenProjectReq, host: Annotated[str, Header(include_in_schema=False)]):
     # if rt.project is not None: confirm or autosave
     rt.project = Project(req.id, req.name)
-    return 'http://' + host + router.prefix + '/' + rt.project.id
+    return 'http://' + host + router.prefix + '/' + str(rt.project.id)
 
 @router.get('/{proj_id}')
-async def open_proejct(proj_id: str):
+async def open_proejct(proj_id: UUID):
     rt.assert_project_loaded()
     if rt.project.id != proj_id:
         raise HTTPException(HTTPStatus.NOT_FOUND, 'No loaded project with id ' + proj_id + ' was found')

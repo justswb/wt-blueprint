@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import Dict
 from uuid import UUID
 
 from .task import Task
@@ -8,5 +8,5 @@ from .task import Task
 class Project:
     id: UUID
     name: str
-    tasks: List[Task] = field(default_factory=list)
+    tasks: Dict[UUID, Task] = field(default_factory=dict)
     pass
