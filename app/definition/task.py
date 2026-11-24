@@ -1,5 +1,4 @@
 from dataclasses import field
-from typing import Dict, List
 from enum import Enum
 from uuid import UUID, uuid7
 
@@ -25,5 +24,5 @@ class Task:
     id: SkipJsonSchema[UUID] = uuid7()
     desc: str = ''
     status: Status = Status.DRAFT
-    relations: Dict[Relation, List[UUID]] = field(default_factory=dict)
+    relations: dict[Relation, list[UUID]] = field(default_factory=dict)
     pass
