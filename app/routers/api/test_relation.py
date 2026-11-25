@@ -4,10 +4,11 @@ from uuid import uuid7
 from fastapi.testclient import TestClient
 
 from ...main import app
-from ...runtime import load_project, get_relations
+from ...runtime import load_project
 from ...definition.project import Project
 from ...definition.task import Task
 from ...definition.relation import RelationType
+from .common import get_relations
 
 client = TestClient(app, 'http://testserver/api/relation')
 

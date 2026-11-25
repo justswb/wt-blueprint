@@ -2,9 +2,8 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, HTTPException
 
-from ...runtime import get_relations
 from ...definition.relation import Relation
-from .common import require_project
+from .common import require_project, get_relations
 
 router = APIRouter(prefix='/api/relation', tags=['relation'])
 
