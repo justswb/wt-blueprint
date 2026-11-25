@@ -6,8 +6,9 @@ from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
-from ...runtime import load_project, require_project
+from ...runtime import load_project
 from ...definition.project import Project
+from .common import require_project
 
 router = APIRouter(prefix='/api/project', tags=['project'])
 

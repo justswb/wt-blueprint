@@ -1,7 +1,4 @@
-from http import HTTPStatus
 from uuid import UUID
-
-from fastapi import HTTPException
 
 from .definition.project import Project
 from .definition.task import Task
@@ -16,7 +13,7 @@ def load_project(target: Project) -> None:
 
 def require_project() -> Project:
     if _project is None:
-        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='No project loaded')
+        raise Exception('No project loaded')
     return _project
 
 def find_task(task_id: UUID) -> tuple[int, Task | None]:
