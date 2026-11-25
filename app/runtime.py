@@ -24,4 +24,4 @@ def find_task(task_id: UUID) -> tuple[int, Task | None]:
         if t.id == task_id:
             return i, t
         pass
-    return None
+    return -1, None
