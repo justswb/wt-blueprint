@@ -1,5 +1,5 @@
 from typing import Annotated
-from uuid import UUID, uuid7
+import uuid
 from http import HTTPStatus
 
 from fastapi import APIRouter, Header, HTTPException
@@ -11,6 +11,8 @@ from ...definition.project import Project
 
 router = APIRouter(prefix='/api/project', tags=['project'])
 
+UUID = uuid.UUID
+
 
 class CreateProjectReq(BaseModel):
     name: str
@@ -19,7 +21,7 @@ class CreateProjectReq(BaseModel):
 
 @router.post('/new', status_code=HTTPStatus.CREATED)
 async def create_project(req: CreateProjectReq):
-    return Project(uuid7(), req.name)
+    return Project(uuid.uuid7(), req.name)
 
 @router.post('/', response_class=RedirectResponse, status_code=HTTPStatus.SEE_OTHER)
 async def open_project(req: Project, host: Annotated[str, Header(include_in_schema=False)]):
