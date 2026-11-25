@@ -13,11 +13,20 @@ client = TestClient(app, 'http://testserver/api/relation')
 
 
 TEST_TASKS = Task('a'), Task('b')
+TEST_RELATION = [RelationType.BLOCK] + list(map(lambda t: t.id, TEST_TASKS))
 
 
 def test_add_relation():
     load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS))
     response = client.post('/', json=[RelationType.BLOCK.value] + list(map(lambda t: str(t.id), TEST_TASKS)))
     assert response.status_code == HTTPStatus.CREATED
-    assert [RelationType.BLOCK] + list(map(lambda t: t.id, TEST_TASKS)) in get_relations()
+    assert TEST_RELATION in get_relations()
+    pass
+
+
+def test_get_relation():
+    load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS, TEST_RELATION))
+    response = client.get(f'/{TEST_TASKS[0].id}')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == [RelationType.BLOCK.value] + list(map(lambda t: str(t.id), TEST_TASKS))
     pass
