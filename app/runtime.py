@@ -25,4 +25,8 @@ def find_task(task_id: UUID) -> tuple[int, Task | None]:
     return -1, None
 
 def get_relations(task_id: UUID) -> list[Relation]:
-    return filter(lambda t: task_id in t, require_project().relations)
+    return [relation for relation in require_project().relations if task_id in relation]
+
+def add_relation(relation: Relation) -> list[Relation]:
+    require_project().relations.append(relation)
+    return get_relations(relation[1])
