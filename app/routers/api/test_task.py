@@ -12,19 +12,20 @@ BASE_URL = 'http://testserver/api/task'
 client = TestClient(app, BASE_URL)
 
 
-TEST_UUID = uuid7()
-TEST_TASK_JSON = {
-    "id": str(TEST_UUID),
-    "name": "test_task_name",
-    "desc": "test_task_desc",
-    "status": Task.Status.DRAFT.value,
-    "relations": {Task.Relation.BLOCKING.value: [str(uuid7())]}
-}
+TEST_TASK = Task("test_task_name", uuid7(), "test_task_desc", Task.Status.DRAFT, {Task.Relation.BLOCKING: [uuid7()]})
+def task_to_dict(t: Task) -> dict:
+    return {
+        "id": str(t.id),
+        "name": t.name,
+        "desc": t.desc,
+        "status": t.status.value,
+        "relations": {r.value: list(map(str, t.relations[r])) for r in t.relations.keys()}
+    }
 
 
 def test_create_task():
     load_project(Project(uuid7(), "test_task_proj"))
-    response = client.post('/', json=TEST_TASK_JSON)
+    response = client.post('/', json=task_to_dict(TEST_TASK))
     assert response.status_code == HTTPStatus.CREATED
-    assert find_task(TEST_UUID) is not None
+    assert find_task(TEST_TASK.id) is not None
     pass
