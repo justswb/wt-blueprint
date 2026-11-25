@@ -30,5 +30,5 @@ async def update_task(task_id: UUID, task: Task):
 
 @router.delete('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def delete_task(task_id: UUID):
-    idx = (await get_task(task_id))[0]
+    idx, _ = await get_task(task_id)
     return require_project().tasks.pop(idx)

@@ -24,10 +24,10 @@ async def create_project(req: CreateProjectReq):
 @router.post('/', response_class=RedirectResponse, status_code=HTTPStatus.SEE_OTHER)
 async def open_project(req: Project, host: Annotated[str, Header(include_in_schema=False)]):
     load_project(req)
-    return 'http://' + host + router.prefix + '/' + str(req.id)
+    return f'http://{host}{router.prefix}/{req.id}'
 
 @router.get('/{proj_id}')
-async def get_proejct(proj_id: UUID):
+async def get_project(proj_id: UUID):
     project = require_project()
     if project.id != proj_id:
         raise HTTPException(HTTPStatus.NOT_FOUND, f'No loaded project with id {proj_id} was found')
