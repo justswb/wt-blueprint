@@ -2,6 +2,7 @@ from uuid import UUID
 
 from .definition.project import Project
 from .definition.task import Task
+from .definition.relation import Relation
 
 _project: Project | None = None
 
@@ -22,3 +23,6 @@ def find_task(task_id: UUID) -> tuple[int, Task | None]:
             return i, t
         pass
     return -1, None
+
+def get_relations(task_id: UUID) -> list[Relation]:
+    return filter(lambda t: task_id in t, require_project().relations)
