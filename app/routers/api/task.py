@@ -3,9 +3,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
-from ...runtime import find_task
 from ...definition.task import Task
-from .common import require_project
+from .common import require_project, find_task
 
 router = APIRouter(prefix='/api/task', tags=['task'])
 
