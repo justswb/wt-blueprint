@@ -4,8 +4,9 @@ import uuid
 from fastapi.testclient import TestClient
 
 from ...main import app
-from ...runtime import load_project, require_project
+from ...runtime import load_project
 from ...definition.project import Project
+from .common import require_project
 
 
 client = TestClient(app, 'http://testserver/api/project')
