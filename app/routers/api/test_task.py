@@ -29,3 +29,11 @@ def test_create_task():
     assert response.status_code == HTTPStatus.CREATED
     assert find_task(TEST_TASK.id) is not None
     pass
+
+
+def test_get_task():
+    load_project(Project(uuid7(), "test_task_proj", [TEST_TASK]))
+    response = client.get(f'/{TEST_TASK.id}')
+    assert response.status_code == HTTPStatus.OK
+    assert response.json() == [0, task_to_dict(TEST_TASK)]
+    pass
