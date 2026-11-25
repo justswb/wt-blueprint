@@ -37,7 +37,8 @@ def test_get_relation():
 
 def test_delete_relation():
     load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS, [TEST_RELATION]))
-    response = client.delete(f'/{RelationType.BLOCK}_{TEST_TASKS[0].id}_{TEST_TASKS[1].id}')
+    assert TEST_RELATION in get_relations(TEST_TASKS[0].id)
+    response = client.delete(f'/{RelationType.BLOCK.value}_{TEST_TASKS[0].id}_{TEST_TASKS[1].id}')
     assert response.status_code == HTTPStatus.ACCEPTED
     assert TEST_RELATION not in get_relations(TEST_TASKS[0].id)
     pass
