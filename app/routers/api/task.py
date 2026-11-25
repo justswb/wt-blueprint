@@ -16,22 +16,19 @@ async def create_task(task: Task):
 
 @router.get('/{task_id}')
 async def get_task(task_id: UUID):
-    task = next((t for t in require_project().tasks if t.id == task_id), None)
+    idx, task = next(([i, t] for i, t in enumerate(require_project().tasks) if t.id == task_id), [-1, None])
     if task is None:
         raise HTTPException(HTTPStatus.NOT_FOUND, 'No task with id ' + str(task_id) + ' was found')
-    return task
+    return idx, task
 
 @router.post('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def update_task(task_id: UUID, task: Task):
-    task_prev = await get_task(task_id)
+    idx, task_prev = await get_task(task_id)
     task.id = task_prev.id
-    project = require_project()
-    project.tasks[project.index(task_prev)] = task
+    require_project().tasks[idx] = task
     return task
 
 @router.delete('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def delete_task(task_id: UUID):
-    task = await get_task(task_id)
-    project = require_project()
-    idx = project.tasks.index(task)
-    return project.tasks.pop(idx)
+    idx, task = await get_task(task_id)
+    return require_project().tasks.pop(idx)

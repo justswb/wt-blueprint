@@ -16,20 +16,15 @@ class CreateProjectReq(BaseModel):
     name: str
     pass
 
-class OpenProjectReq(BaseModel):
-    name: str
-    id: UUID
-    pass
-
 
 @router.post('/new', status_code=HTTPStatus.CREATED)
 async def create_project(req: CreateProjectReq):
     return Project(uuid7(), req.name)
 
 @router.post('/', response_class=RedirectResponse, status_code=HTTPStatus.SEE_OTHER)
-async def open_project(req: OpenProjectReq, host: Annotated[str, Header(include_in_schema=False)]):
-    project = load_project(Project(req.id, req.name))
-    return 'http://' + host + router.prefix + '/' + str(project.id)
+async def open_project(req: Project, host: Annotated[str, Header(include_in_schema=False)]):
+    load_project(req)
+    return 'http://' + host + router.prefix + '/' + str(req.id)
 
 @router.get('/{proj_id}')
 async def open_proejct(proj_id: UUID):

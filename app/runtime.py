@@ -6,12 +6,14 @@ from .definition.project import Project
 
 _project: Project | None = None
 
-def load_project(target: Project) -> Project:
+def load_project(target: Project) -> None:
     # if _project is not None: # confirm or autosave
+    global _project
     _project = target
-    return _project
+    pass
 
 def require_project() -> Project:
+    global _project
     if _project is None:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='No project loaded')
     return _project
