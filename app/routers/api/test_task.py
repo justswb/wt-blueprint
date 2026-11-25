@@ -11,12 +11,11 @@ from ...definition.task import Task
 client = TestClient(app, 'http://testserver/api/task')
 
 
-TEST_TASK = Task("test_task_name", uuid7(), "test_task_desc", Task.Status.DRAFT, {Task.Relation.BLOCKING: [uuid7()]})
+TEST_TASK = Task("test_task_name", uuid7(), "test_task_desc", Task.Status.DRAFT)
 def task_to_dict(t: Task) -> dict:
     d = vars(t).copy()
     d['id'] = str(t.id)
     d['status'] = t.status.value
-    d['relations'] = {r.value: list(map(str, t.relations[r])) for r in t.relations.keys()}
     return d
 
 

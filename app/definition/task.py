@@ -15,14 +15,8 @@ class Task:
         DONE = 'done'
         pass
 
-    class Relation(Enum):
-        BLOCKING = 'blocking'
-        BLOCKED_BY = 'blocked by'
-        pass
-
     name: str
     id: SkipJsonSchema[UUID] = field(default_factory=uuid7)
     desc: str = ''
     status: Status = Status.DRAFT
-    relations: dict[Relation, list[UUID]] = field(default_factory=dict)
     pass
