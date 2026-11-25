@@ -1,14 +1,18 @@
 from http import HTTPStatus
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
-from ...runtime import get_relations, add_relation as _add_relation
+from ...runtime import get_relations
 from ...definition.relation import Relation
+from .common import require_project
 
 router = APIRouter(prefix='/api/relation', tags=['relation'])
 
 
 @router.post('/', status_code=HTTPStatus.CREATED)
 async def add_relation(relation: Relation):
-    _add_relation(relation)
-    return get_relations(relation[1])
+    project = require_project()
+    if relation not in project.relations:
+        project.relations.append(relation)
+        return get_relations(relation[1])
+    raise HTTPException(HTTPStatus.CONFLICT, 'Given relation already exists')
