@@ -8,8 +8,7 @@ from ...runtime import load_project, find_task
 from ...definition.project import Project
 from ...definition.task import Task
 
-BASE_URL = 'http://testserver/api/task'
-client = TestClient(app, BASE_URL)
+client = TestClient(app, 'http://testserver/api/task')
 
 
 TEST_TASK = Task("test_task_name", uuid7(), "test_task_desc", Task.Status.DRAFT, {Task.Relation.BLOCKING: [uuid7()]})

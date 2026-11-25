@@ -8,8 +8,7 @@ from ...runtime import load_project, require_project
 from ...definition.project import Project
 
 
-BASE_URL = 'http://testserver/api/project'
-client = TestClient(app, BASE_URL)
+client = TestClient(app, 'http://testserver/api/project')
 
 
 TEST_UUID = uuid.uuid7()
