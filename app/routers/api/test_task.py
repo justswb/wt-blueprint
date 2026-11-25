@@ -4,9 +4,10 @@ from uuid import uuid7
 from fastapi.testclient import TestClient
 
 from ...main import app
-from ...runtime import load_project, find_task
+from ...runtime import load_project
 from ...definition.project import Project
 from ...definition.task import Task
+from .common import find_task
 
 client = TestClient(app, 'http://testserver/api/task')
 

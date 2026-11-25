@@ -4,7 +4,16 @@ from uuid import UUID
 from fastapi import HTTPException
 
 from ...runtime import require_project as _require_project
+from ...definition.task import Task
 from ...definition.relation import Relation
+
+
+def find_task(task_id: UUID) -> tuple[int, Task | None]:
+    for i, t in enumerate(require_project().tasks):
+        if t.id == task_id:
+            return i, t
+        pass
+    return -1, None
 
 
 def require_project():
