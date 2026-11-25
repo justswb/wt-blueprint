@@ -21,7 +21,7 @@ class Task:
         pass
 
     name: str
-    id: SkipJsonSchema[UUID] = uuid7()
+    id: SkipJsonSchema[UUID] = field(default_factory=uuid7)
     desc: str = ''
     status: Status = Status.DRAFT
     relations: dict[Relation, list[UUID]] = field(default_factory=dict)

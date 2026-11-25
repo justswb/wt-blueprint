@@ -13,7 +13,6 @@ def load_project(target: Project) -> None:
     pass
 
 def require_project() -> Project:
-    global _project
     if _project is None:
         raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail='No project loaded')
     return _project
