@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
-from ...runtime import require_project
+from ...runtime import require_project, find_task
 from ...definition.task import Task
 
 router = APIRouter(prefix='/api/task', tags=['task'])
@@ -16,10 +16,9 @@ async def create_task(task: Task):
 
 @router.get('/{task_id}')
 async def get_task(task_id: UUID):
-    for i, t in enumerate(require_project().tasks):
-        if t.id == task_id:
-            return i, t
-        pass
+    idx, task = find_task(task_id)
+    if task is not None:
+        return idx, task
     raise HTTPException(HTTPStatus.NOT_FOUND, f'No task with id {task_id} was found')
 
 @router.post('/{task_id}', status_code=HTTPStatus.ACCEPTED)
@@ -31,5 +30,5 @@ async def update_task(task_id: UUID, task: Task):
 
 @router.delete('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def delete_task(task_id: UUID):
-    idx, task = await get_task(task_id)
+    idx = (await get_task(task_id))[0]
     return require_project().tasks.pop(idx)
