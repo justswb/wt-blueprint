@@ -46,3 +46,11 @@ def test_update_task():
     assert response.status_code == HTTPStatus.ACCEPTED
     assert find_task(TEST_TASK.id)[1].name == request_json['name']
     pass
+
+
+def test_delete_task():
+    load_project(Project(uuid7(), "test_task_proj", [TEST_TASK]))
+    response = client.delete(f'/{TEST_TASK.id}')
+    assert response.status_code == HTTPStatus.ACCEPTED
+    assert find_task(TEST_TASK.id) == (-1, None)
+    pass
