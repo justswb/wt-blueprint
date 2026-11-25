@@ -14,13 +14,11 @@ client = TestClient(app, BASE_URL)
 
 TEST_TASK = Task("test_task_name", uuid7(), "test_task_desc", Task.Status.DRAFT, {Task.Relation.BLOCKING: [uuid7()]})
 def task_to_dict(t: Task) -> dict:
-    return {
-        "id": str(t.id),
-        "name": t.name,
-        "desc": t.desc,
-        "status": t.status.value,
-        "relations": {r.value: list(map(str, t.relations[r])) for r in t.relations.keys()}
-    }
+    d = vars(t).copy()
+    d['id'] = str(t.id)
+    d['status'] = t.status.value
+    d['relations'] = {r.value: list(map(str, t.relations[r])) for r in t.relations.keys()}
+    return d
 
 
 def test_create_task():
