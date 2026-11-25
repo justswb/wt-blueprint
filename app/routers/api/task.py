@@ -25,7 +25,8 @@ async def get_task(task_id: UUID):
 async def update_task(task_id: UUID, task: Task):
     task_prev = await get_task(task_id)
     task.id = task_prev.id
-    require_project().tasks[task_id] = task
+    project = require_project()
+    project.tasks[project.index(task_prev)] = task
     return task
 
 @router.delete('/{task_id}', status_code=HTTPStatus.ACCEPTED)
