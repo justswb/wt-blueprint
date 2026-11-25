@@ -30,5 +30,5 @@ async def open_project(req: Project, host: Annotated[str, Header(include_in_sche
 async def open_proejct(proj_id: UUID):
     project = require_project()
     if project.id != proj_id:
-        raise HTTPException(HTTPStatus.NOT_FOUND, 'No loaded project with id ' + str(proj_id) + ' was found')
+        raise HTTPException(HTTPStatus.NOT_FOUND, f'No loaded project with id {proj_id} was found')
     return project
