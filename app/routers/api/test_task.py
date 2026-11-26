@@ -1,25 +1,24 @@
 from http import HTTPStatus
-from uuid import uuid7
+from uuid import UUID, uuid7
 
 from fastapi.testclient import TestClient
+from pydantic import TypeAdapter
 
 from ...main import app
 from ...runtime import load_project
 from ...definition.project import Project
 from ...definition.task import Task
 from ...definition.feature import Feature
+from ...definition.git_ref import GitRef
 from ...definition.relation import RelationType
 from .common import find_task, get_relations, require_project
 
 client = TestClient(app, 'http://testserver/api/task')
 
 
-TEST_TASK = Task("test_task_name", uuid7(), "test_task_desc", Task.Status.DRAFT)
+TEST_TASK = Task("test_task_name", uuid7(), "test_task_desc", Task.Status.DRAFT, GitRef('feat/a', 3, 'a' * 40))
 def task_to_dict(t: Task) -> dict:
-    d = vars(t).copy()
-    d['id'] = str(t.id)
-    d['status'] = t.status.value
-    return d
+    return TypeAdapter(Task).dump_python(t, mode='json')
 
 
 def test_create_task():
@@ -27,7 +26,9 @@ def test_create_task():
     request_json = {k: v for k, v in task_to_dict(TEST_TASK).items() if k != 'id'}
     response = client.post('/', json=request_json)
     assert response.status_code == HTTPStatus.CREATED
-    assert find_task(TEST_TASK.id) is not None
+    index, task = find_task(UUID(response.json()))
+    assert index != -1
+    assert task.ref == GitRef('feat/a', 3, 'a' * 40)
     pass
 
 
