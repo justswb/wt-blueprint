@@ -73,12 +73,9 @@ async def delete_feature(feature_id: UUID):
 
 @router.post('/{feature_id}/task/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def add_task_to_feature(feature_id: UUID, task_id: UUID):
-    _, feature = require_feature(feature_id)
-    require_tasks_exist([task_id])
-    if task_id in feature.tasks:
-        raise HTTPException(HTTPStatus.CONFLICT, f'Task {task_id} is already in feature {feature_id}')
-    feature.tasks.append(task_id)
-    return feature
+    require_project()
+    with manager_errors():
+        return feature_manager.add_task_to_feature(feature_id, task_id)
 
 
 @router.delete('/{feature_id}/task/{task_id}', status_code=HTTPStatus.ACCEPTED)

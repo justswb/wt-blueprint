@@ -34,6 +34,15 @@ def delete_feature(feature_id: UUID) -> Feature:
     return require_project().features.pop(idx)
 
 
+def add_task_to_feature(feature_id: UUID, task_id: UUID) -> Feature:
+    _, feature = find_feature(feature_id)
+    require_tasks_exist([task_id])
+    if task_id in feature.tasks:
+        raise ValueError(f'Task {task_id} is already in feature {feature_id}')
+    feature.tasks.append(task_id)
+    return feature
+
+
 def require_tasks_exist(task_ids: list[UUID]) -> None:
     for task_id in task_ids:
         task_manager.find_task(task_id)

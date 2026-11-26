@@ -81,6 +81,43 @@ def test_delete_feature_missing_raises_lookup_error():
     assert require_project().features == [feature]
 
 
+def test_add_task_to_feature_appends():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    assert feature_manager.add_task_to_feature(feature.id, TEST_TASKS[1].id).tasks == [TEST_TASKS[0].id, TEST_TASKS[1].id]
+
+
+def test_add_task_to_missing_feature_raises_lookup_error():
+    load_project(Project(uuid7(), 'p', TEST_TASKS))
+    with pytest.raises(LookupError):
+        feature_manager.add_task_to_feature(uuid7(), TEST_TASKS[0].id)
+
+
+def test_add_unknown_task_to_feature_raises_lookup_error():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    with pytest.raises(LookupError):
+        feature_manager.add_task_to_feature(feature.id, uuid7())
+    assert require_project().features[0].tasks == [TEST_TASKS[0].id]
+
+
+def test_add_existing_task_to_feature_raises_value_error():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    with pytest.raises(ValueError):
+        feature_manager.add_task_to_feature(feature.id, TEST_TASKS[0].id)
+    assert require_project().features[0].tasks == [TEST_TASKS[0].id]
+
+
+def test_add_same_task_to_two_features():
+    features = [Feature('f1'), Feature('f2')]
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], features))
+    feature_manager.add_task_to_feature(features[0].id, TEST_TASKS[0].id)
+    feature_manager.add_task_to_feature(features[1].id, TEST_TASKS[0].id)
+    assert features[0].tasks == [TEST_TASKS[0].id]
+    assert features[1].tasks == [TEST_TASKS[0].id]
+
+
 def test_create_feature_unknown_task_raises_lookup_error():
     load_project(Project(uuid7(), 'p', TEST_TASKS))
     with pytest.raises(LookupError):
