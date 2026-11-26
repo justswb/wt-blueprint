@@ -10,8 +10,9 @@
 
 ## PR 순서·stack
 - 각 작업이 끝나면 PR을 올리고, 리뷰를 기다리지 않고 다음 작업을 시작한다.
-- 상위 feat 브랜치의 하위 작업 PR은 GitHub stacked PR(`gh stack`)로 한 줄로 쌓는다. stack의 trunk는 상위 feat 브랜치로 한다(`gh stack init --base <feat 브랜치>`). 서로 의존하지 않는 작업도 같은 stack에 순서대로 쌓는다.
-- 각 PR의 base는 바로 아래 PR의 브랜치이고, 맨 아래 PR의 base는 상위 feat 브랜치다. 순서는 GitHub stack으로 보이므로 PR 본문에 따로 적지 않는다.
+- 앞 작업에 의존하는 하위 작업은 GitHub stacked PR(`gh stack`)로 한 줄로 쌓는다. stack의 trunk는 상위 feat 브랜치로 한다(`gh stack init --base <feat 브랜치>`). stack 안에서 각 PR의 base는 바로 아래 PR의 브랜치다. 순서는 GitHub stack으로 보이므로 PR 본문에 따로 적지 않는다.
+- 의존이 없는 하위 작업은 상위 feat 브랜치에서 브랜치를 만들고, 상위 feat 브랜치를 base로 하는 일반 PR로 올린다.
+- 같은 앞 작업에 여러 작업이 의존해 갈라지면 하나만 그 stack에 쌓고, 나머지는 앞 작업이 merge된 뒤 상위 feat 브랜치에서 시작한다.
 - 첫 하위 작업 PR이 상위 feat 브랜치에 merge되면 상위 feat 브랜치 → `main` PR을 draft로 연다. 이 PR은 stack에 넣지 않는다. 마지막 하위 작업 PR이 merge되면 ready로 바꾼다.
 - 레포 공통 작업은 stack 없이 `main` 대상 PR로 올린다.
 - stack 브랜치를 맞출 때는 `gh stack sync`나 `gh stack rebase`를 쓰고, 이때의 rebase와 `--force-with-lease` push는 허용한다. 그 밖에는 merge를 쓰고, rebase와 강제 push는 사용자가 허용한 경우에만 한다.
