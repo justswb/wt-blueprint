@@ -26,13 +26,11 @@ def test_add_relation_endpoint():
     assert response.status_code == HTTPStatus.CONFLICT
 
 
-def test_get_relation():
-    load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS, [TEST_RELATION]))
+def test_get_relation_endpoint():
+    load_project(Project(uuid7(), 'test_get_relation_endpoint', TEST_TASKS, [TEST_RELATION]))
     response = client.get(f'/{TEST_TASKS[0].id}')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == [list(TEST_RELATION_JSON)]
-    pass
-
 
 
 def test_delete_relation():

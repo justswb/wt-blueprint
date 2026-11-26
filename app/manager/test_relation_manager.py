@@ -24,3 +24,10 @@ def test_add_duplicate_relation():
     load_project(Project(uuid7(), 'test_add_duplicate_relation', TEST_TASKS, [TEST_RELATION]))
     with pytest.raises(ValueError):
         relation_manager.add_relation(TEST_RELATION)
+
+
+def test_get_relations():
+    load_project(Project(uuid7(), 'test_get_relations', TEST_TASKS, [TEST_RELATION]))
+    assert relation_manager.get_relations(TEST_TASKS[0].id) == [TEST_RELATION]
+    assert relation_manager.get_relations(TEST_TASKS[1].id) == [TEST_RELATION]
+    assert relation_manager.get_relations(uuid7()) == []

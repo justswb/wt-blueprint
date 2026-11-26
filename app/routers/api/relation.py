@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 
 from ...definition.relation import Relation, RelationType
 from ...manager import relation_manager
-from .common import require_project, get_relations
+from .common import require_project
 
 router = APIRouter(prefix='/api/relation', tags=['relation'])
 
@@ -21,7 +21,8 @@ async def add_relation(relation: Relation):
 
 @router.get('/{task_id}')
 async def get_relation(task_id: UUID):
-    return get_relations(task_id)
+    require_project()
+    return relation_manager.get_relations(task_id)
 
 
 @router.delete('/{relation_type}_{task_a_id}_{task_b_id}', status_code=HTTPStatus.ACCEPTED)
