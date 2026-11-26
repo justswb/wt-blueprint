@@ -13,7 +13,7 @@ client = TestClient(app, 'http://testserver/api/project')
 
 
 TEST_UUID = uuid.uuid7()
-TEST_PROJ_JSON = {"id":str(TEST_UUID),"name":"test_proj_name", "tasks":[], "relations": []}
+TEST_PROJ_JSON = {"id":str(TEST_UUID),"name":"test_proj_name", "tasks":[], "relations": [], "features": []}
 
 
 def test_create_project(monkeypatch):
