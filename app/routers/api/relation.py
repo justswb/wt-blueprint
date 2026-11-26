@@ -27,6 +27,5 @@ async def get_relation(task_id: UUID):
 
 @router.delete('/{relation_type}_{task_a_id}_{task_b_id}', status_code=HTTPStatus.ACCEPTED)
 async def delete_relation(relation_type: RelationType, task_a_id: UUID, task_b_id: UUID):
-    project = require_project()
-    idx = project.relations.index((relation_type, task_a_id, task_b_id))
-    return project.relations.pop(idx)
+    require_project()
+    return relation_manager.delete_relation((relation_type, task_a_id, task_b_id))
