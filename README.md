@@ -20,4 +20,4 @@ uv run pytest    # 테스트
 
 uv는 전역 설치가 필요하다: https://docs.astral.sh/uv/
 
-gh-stack은 GitHub CLI 확장으로 설치가 필요하다(현재 미설치): `gh extension install github/gh-stack --pin v0.3.0`
+gh-stack은 GitHub CLI 확장으로 설치가 필요하다: `gh extension install github/gh-stack --pin v0.3.0`
