@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 
 from ...definition.feature import Feature
 from ...manager import feature_manager
-from .common import require_project, find_task, find_feature, get_features
+from .common import require_project, find_task, find_feature
 
 router = APIRouter(prefix='/api/feature', tags=['feature'])
 
@@ -46,7 +46,8 @@ async def create_feature(feature: Feature):
 
 @router.get('/task/{task_id}')
 async def get_features_by_task(task_id: UUID):
-    return get_features(task_id)
+    require_project()
+    return feature_manager.get_features_by_task(task_id)
 
 
 @router.get('/{feature_id}')

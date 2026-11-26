@@ -17,6 +17,10 @@ def get_feature(feature_id: UUID) -> Feature:
     return feature
 
 
+def get_features_by_task(task_id: UUID) -> list[Feature]:
+    return [f for f in require_project().features if task_id in f.tasks]
+
+
 def require_tasks_exist(task_ids: list[UUID]) -> None:
     for task_id in task_ids:
         task_manager.find_task(task_id)
