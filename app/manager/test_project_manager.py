@@ -1,7 +1,9 @@
 import uuid
 
+import pytest
+
+from ..runtime import load_project
 from ..definition.project import Project
-from .. import runtime
 from . import project_manager
 
 
@@ -23,4 +25,24 @@ def test_open_project_loads_project(monkeypatch):
     monkeypatch.setattr("app.runtime._project", None)
     project = Project(uuid.uuid7(), "open_name")
     assert project_manager.open_project(project) is project
-    assert runtime.require_project() is project
+    assert project_manager.get_project(project.id) is project
+
+
+def test_get_project_returns_loaded_project(monkeypatch):
+    monkeypatch.setattr("app.runtime._project", None)
+    project = Project(uuid.uuid7(), "loaded")
+    load_project(project)
+    assert project_manager.get_project(project.id) is project
+
+
+def test_get_project_mismatched_id_raises_lookup_error(monkeypatch):
+    monkeypatch.setattr("app.runtime._project", None)
+    load_project(Project(uuid.uuid7(), "loaded"))
+    with pytest.raises(LookupError):
+        project_manager.get_project(uuid.uuid7())
+
+
+def test_get_project_not_loaded_raises(monkeypatch):
+    monkeypatch.setattr("app.runtime._project", None)
+    with pytest.raises(Exception, match="No project loaded"):
+        project_manager.get_project(uuid.uuid7())

@@ -32,7 +32,8 @@ async def open_project(req: Project, host: Annotated[str, Header(include_in_sche
 
 @router.get('/{proj_id}')
 async def get_project(proj_id: UUID):
-    project = require_project()
-    if project.id != proj_id:
-        raise HTTPException(HTTPStatus.NOT_FOUND, f'No loaded project with id {proj_id} was found')
-    return project
+    require_project()
+    try:
+        return project_manager.get_project(proj_id)
+    except LookupError as exc:
+        raise HTTPException(HTTPStatus.NOT_FOUND, exc.args[0])

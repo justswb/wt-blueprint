@@ -4,9 +4,8 @@ import uuid
 from fastapi.testclient import TestClient
 
 from ...main import app
-from ...runtime import load_project
+from ... import runtime
 from ...definition.project import Project
-from .common import require_project
 
 
 client = TestClient(app, 'http://testserver/api/project')
@@ -27,7 +26,20 @@ def test_open_project_redirects():
 
 
 def test_require_unloaded_project():
-    load_project(Project(uuid.uuid7(), "test_require_unloaded_project_name"))
+    runtime.load_project(Project(uuid.uuid7(), "test_require_unloaded_project_name"))
     response = client.get(f'/{TEST_UUID}')
     assert response.status_code == HTTPStatus.NOT_FOUND
     pass
+
+
+def test_get_project_loaded_returns_200(monkeypatch):
+    monkeypatch.setattr(runtime, "_project", None)
+    runtime.load_project(Project(TEST_UUID, "test_proj_name"))
+    response = client.get(f'/{TEST_UUID}')
+    assert response.status_code == HTTPStatus.OK
+
+
+def test_get_project_when_none_loaded_returns_400(monkeypatch):
+    monkeypatch.setattr(runtime, "_project", None)
+    response = client.get(f'/{TEST_UUID}')
+    assert response.status_code == HTTPStatus.BAD_REQUEST
