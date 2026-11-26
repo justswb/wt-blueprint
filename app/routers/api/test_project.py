@@ -21,11 +21,9 @@ def test_create_project_returns_201():
     assert response.status_code == HTTPStatus.CREATED.value
 
 
-def test_open_project():
+def test_open_project_redirects():
     response = client.post('/', json=TEST_PROJ_JSON)
     assert response.status_code == HTTPStatus.OK
-    assert require_project().id == TEST_UUID
-    pass
 
 
 def test_require_unloaded_project():

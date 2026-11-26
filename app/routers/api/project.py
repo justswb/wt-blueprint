@@ -6,7 +6,6 @@ from fastapi import APIRouter, Header, HTTPException
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
-from ...runtime import load_project
 from ...definition.project import Project
 from ...manager import project_manager
 from .common import require_project
@@ -28,7 +27,7 @@ async def create_project(req: CreateProjectReq):
 
 @router.post('/', response_class=RedirectResponse, status_code=HTTPStatus.SEE_OTHER)
 async def open_project(req: Project, host: Annotated[str, Header(include_in_schema=False)]):
-    load_project(req)
+    project_manager.open_project(req)
     return f'http://{host}{router.prefix}/{req.id}'
 
 @router.get('/{proj_id}')
