@@ -118,6 +118,25 @@ def test_add_same_task_to_two_features():
     assert features[1].tasks == [TEST_TASKS[0].id]
 
 
+def test_remove_task_from_feature_removes_it():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id, TEST_TASKS[1].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    assert feature_manager.remove_task_from_feature(feature.id, TEST_TASKS[0].id).tasks == [TEST_TASKS[1].id]
+
+
+def test_remove_task_not_in_feature_raises_lookup_error():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    with pytest.raises(LookupError):
+        feature_manager.remove_task_from_feature(feature.id, TEST_TASKS[1].id)
+
+
+def test_remove_task_from_missing_feature_raises_lookup_error():
+    load_project(Project(uuid7(), 'p', TEST_TASKS))
+    with pytest.raises(LookupError):
+        feature_manager.remove_task_from_feature(uuid7(), TEST_TASKS[0].id)
+
+
 def test_create_feature_unknown_task_raises_lookup_error():
     load_project(Project(uuid7(), 'p', TEST_TASKS))
     with pytest.raises(LookupError):

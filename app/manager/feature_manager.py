@@ -43,6 +43,14 @@ def add_task_to_feature(feature_id: UUID, task_id: UUID) -> Feature:
     return feature
 
 
+def remove_task_from_feature(feature_id: UUID, task_id: UUID) -> Feature:
+    _, feature = find_feature(feature_id)
+    if task_id not in feature.tasks:
+        raise LookupError(f'No task with id {task_id} was found in feature {feature_id}')
+    feature.tasks.remove(task_id)
+    return feature
+
+
 def require_tasks_exist(task_ids: list[UUID]) -> None:
     for task_id in task_ids:
         task_manager.find_task(task_id)

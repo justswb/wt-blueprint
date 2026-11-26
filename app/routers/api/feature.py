@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 
 from ...definition.feature import Feature
 from ...manager import feature_manager
-from .common import require_project, find_task, find_feature
+from .common import require_project
 
 router = APIRouter(prefix='/api/feature', tags=['feature'])
 
@@ -19,22 +19,6 @@ def manager_errors():
         raise HTTPException(HTTPStatus.NOT_FOUND, str(exc))
     except ValueError as exc:
         raise HTTPException(HTTPStatus.CONFLICT, str(exc))
-
-
-def require_tasks_exist(task_ids: list[UUID]):
-    for task_id in task_ids:
-        _, task = find_task(task_id)
-        if task is None:
-            raise HTTPException(HTTPStatus.NOT_FOUND, f'No task with id {task_id} was found')
-        pass
-    pass
-
-
-def require_feature(feature_id: UUID) -> tuple[int, Feature]:
-    idx, feature = find_feature(feature_id)
-    if feature is not None:
-        return idx, feature
-    raise HTTPException(HTTPStatus.NOT_FOUND, f'No feature with id {feature_id} was found')
 
 
 @router.post('/', status_code=HTTPStatus.CREATED)
@@ -80,8 +64,6 @@ async def add_task_to_feature(feature_id: UUID, task_id: UUID):
 
 @router.delete('/{feature_id}/task/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def remove_task_from_feature(feature_id: UUID, task_id: UUID):
-    _, feature = require_feature(feature_id)
-    if task_id not in feature.tasks:
-        raise HTTPException(HTTPStatus.NOT_FOUND, f'No task with id {task_id} was found in feature {feature_id}')
-    feature.tasks.remove(task_id)
-    return feature
+    require_project()
+    with manager_errors():
+        return feature_manager.remove_task_from_feature(feature_id, task_id)
