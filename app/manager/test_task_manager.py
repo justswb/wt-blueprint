@@ -4,7 +4,9 @@ from uuid import uuid7
 from ..runtime import load_project, require_project
 from ..definition.project import Project
 from ..definition.task import Task
+from ..definition.feature import Feature
 from ..definition.git_ref import GitRef
+from ..definition.relation import RelationType
 from . import task_manager
 
 
@@ -73,3 +75,39 @@ def test_update_done_task_to_other_status_clears_pr_and_merge_commit():
     assert result.status == Task.Status.IN_PROGRESS
     assert result.ref == GitRef('feat/a', None, None)
     assert require_project().tasks == [result]
+
+
+def test_delete_task_removes_task():
+    a = Task('a')
+    load_project(Project(uuid7(), 'p', [a]))
+    assert task_manager.delete_task(a.id) is a
+    assert require_project().tasks == []
+
+
+def test_delete_task_missing_raises_lookup_error():
+    load_project(Project(uuid7(), 'p', [Task('a')]))
+    with pytest.raises(LookupError):
+        task_manager.delete_task(uuid7())
+
+
+def test_delete_task_removes_feature_refs():
+    tasks = Task('a'), Task('b')
+    features = [Feature('f1', uuid7(), '', [tasks[0].id, tasks[1].id]), Feature('f2', uuid7(), '', [tasks[0].id])]
+    load_project(Project(uuid7(), 'p', list(tasks), [], features))
+    task_manager.delete_task(tasks[0].id)
+    assert all(tasks[0].id not in f.tasks for f in require_project().features)
+    assert tasks[1].id in require_project().features[0].tasks
+
+
+def test_delete_task_removes_relations():
+    a, b, c = Task('a'), Task('b'), Task('c')
+    relation_bc = (RelationType.BLOCK, b.id, c.id)
+    load_project(Project(uuid7(), 'p', [a, b, c], [
+        (RelationType.BLOCK, a.id, b.id),
+        (RelationType.BLOCK, c.id, a.id),
+        relation_bc,
+    ]))
+    task_manager.delete_task(a.id)
+    relations = require_project().relations
+    assert all(a.id not in r for r in relations)
+    assert relation_bc in relations

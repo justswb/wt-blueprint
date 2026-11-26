@@ -30,3 +30,13 @@ def update_task(task_id: UUID, task: Task) -> Task:
     task.id = task_prev.id
     require_project().tasks[idx] = task
     return task
+
+
+def delete_task(task_id: UUID) -> Task:
+    idx, _ = find_task(task_id)
+    project = require_project()
+    task = project.tasks.pop(idx)
+    project.relations[:] = [r for r in project.relations if task_id not in r]
+    for feature in project.features:
+        feature.tasks[:] = [t for t in feature.tasks if t != task_id]
+    return task

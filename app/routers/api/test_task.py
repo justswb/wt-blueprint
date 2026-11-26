@@ -81,36 +81,14 @@ def test_delete_task():
     load_project(Project(uuid7(), "test_task_proj", [TEST_TASK]))
     response = client.delete(f'/{TEST_TASK.id}')
     assert response.status_code == HTTPStatus.ACCEPTED
-    assert find_task(TEST_TASK.id) == (-1, None)
+    assert response.json()['id'] == str(TEST_TASK.id)
     pass
 
 
-def test_delete_task_removes_feature_refs():
-    tasks = Task('a'), Task('b')
-    features = [Feature('f1', uuid7(), '', [tasks[0].id, tasks[1].id]), Feature('f2', uuid7(), '', [tasks[0].id])]
-    load_project(Project(uuid7(), 'test_task_proj', list(tasks), [], features))
-    response = client.delete(f'/{tasks[0].id}')
-    assert response.status_code == HTTPStatus.ACCEPTED
-    proj_features = require_project().features
-    assert all(tasks[0].id not in f.tasks for f in proj_features)
-    assert tasks[1].id in proj_features[0].tasks
-    pass
-
-
-def test_delete_task_removes_relations():
-    a = Task('a')
-    b = Task('b')
-    c = Task('c')
-    relation_bc = (RelationType.BLOCK, b.id, c.id)
-    load_project(Project(uuid7(), "test_task_proj", [a, b, c], [
-        (RelationType.BLOCK, a.id, b.id),
-        (RelationType.BLOCK, c.id, a.id),
-        relation_bc,
-    ]))
-    response = client.delete(f'/{a.id}')
-    assert response.status_code == HTTPStatus.ACCEPTED
-    assert get_relations(a.id) == []
-    assert relation_bc in get_relations(b.id)
+def test_delete_task_missing():
+    load_project(Project(uuid7(), "test_task_proj"))
+    response = client.delete(f'/{TEST_TASK.id}')
+    assert response.status_code == HTTPStatus.NOT_FOUND
     pass
 
 
