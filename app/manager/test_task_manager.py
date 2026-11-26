@@ -39,3 +39,37 @@ def test_get_task_missing_raises_lookup_error():
     load_project(Project(uuid7(), 'p'))
     with pytest.raises(LookupError):
         task_manager.get_task(uuid7())
+
+
+def test_update_task_replaces_and_keeps_id():
+    original = Task('old')
+    load_project(Project(uuid7(), 'p', [original]))
+    replacement = Task('new')
+    result = task_manager.update_task(original.id, replacement)
+    assert result is replacement
+    assert replacement.id == original.id
+    assert require_project().tasks == [replacement]
+
+
+def test_update_task_missing_raises_lookup_error():
+    load_project(Project(uuid7(), 'p'))
+    with pytest.raises(LookupError):
+        task_manager.update_task(uuid7(), Task('x'))
+
+
+def test_update_done_task_to_done_raises_permission_error():
+    done = Task('done', status=Task.Status.DONE)
+    load_project(Project(uuid7(), 'p', [done]))
+    with pytest.raises(PermissionError):
+        task_manager.update_task(done.id, Task('changed', status=Task.Status.DONE))
+    assert require_project().tasks == [done]
+
+
+def test_update_done_task_to_other_status_clears_pr_and_merge_commit():
+    done = Task('done', status=Task.Status.DONE, ref=GitRef('feat/a', 3, 'a' * 40))
+    load_project(Project(uuid7(), 'p', [done]))
+    replacement = Task('reopened', status=Task.Status.IN_PROGRESS, ref=GitRef('feat/a', 3, 'a' * 40))
+    result = task_manager.update_task(done.id, replacement)
+    assert result.status == Task.Status.IN_PROGRESS
+    assert result.ref == GitRef('feat/a', None, None)
+    assert require_project().tasks == [result]

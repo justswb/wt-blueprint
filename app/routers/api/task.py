@@ -26,15 +26,13 @@ async def get_task(task_id: UUID):
 
 @router.post('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def update_task(task_id: UUID, task: Task):
-    idx, task_prev = await get_task(task_id)
-    if task_prev.status == Task.Status.DONE:
-        if task.status == Task.Status.DONE:
-            raise HTTPException(HTTPStatus.FORBIDDEN, 'Cannot update done task')
-        task.ref = GitRef(task.ref.branch, None, None)
-        pass
-    task.id = task_prev.id
-    require_project().tasks[idx] = task
-    return task
+    require_project()
+    try:
+        return task_manager.update_task(task_id, task)
+    except LookupError as exc:
+        raise HTTPException(HTTPStatus.NOT_FOUND, str(exc))
+    except PermissionError as exc:
+        raise HTTPException(HTTPStatus.FORBIDDEN, str(exc))
 
 @router.delete('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def delete_task(task_id: UUID):
