@@ -18,6 +18,11 @@ TEST_FEATURE = Feature('test_feature_name', uuid7(), 'test_feature_desc', [TEST_
 TEST_FEATURE_JSON = {'name': 'test_feature_name', 'desc': 'test_feature_desc', 'tasks': [str(TEST_TASKS[0].id)]}
 
 
+def new_test_feature() -> Feature:
+    # fresh copy per test: routes mutate feature.tasks in place
+    return Feature(TEST_FEATURE.name, TEST_FEATURE.id, TEST_FEATURE.desc, list(TEST_FEATURE.tasks))
+
+
 def feature_to_dict(f: Feature) -> dict:
     d = vars(f).copy()
     d['id'] = str(f.id)
@@ -48,7 +53,7 @@ def test_create_feature_unknown_task():
 
 
 def test_get_feature():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.get(f'/{TEST_FEATURE.id}')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == feature_to_dict(TEST_FEATURE)
@@ -63,7 +68,7 @@ def test_get_feature_missing():
 
 
 def test_update_feature():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     request_json = {'name': 'mutation_feature_name', 'desc': 'mutation_feature_desc', 'tasks': [str(TEST_TASKS[1].id)]}
     response = client.post(f'/{TEST_FEATURE.id}', json=request_json)
     assert response.status_code == HTTPStatus.ACCEPTED
@@ -86,7 +91,7 @@ def test_update_feature_missing():
 
 
 def test_update_feature_unknown_task():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     request_json = {**TEST_FEATURE_JSON, 'tasks': [str(uuid7())]}
     response = client.post(f'/{TEST_FEATURE.id}', json=request_json)
     assert response.status_code == HTTPStatus.NOT_FOUND
@@ -95,7 +100,7 @@ def test_update_feature_unknown_task():
 
 
 def test_delete_feature():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.delete(f'/{TEST_FEATURE.id}')
     assert response.status_code == HTTPStatus.ACCEPTED
     assert response.json() == feature_to_dict(TEST_FEATURE)
@@ -104,7 +109,7 @@ def test_delete_feature():
 
 
 def test_delete_feature_missing():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.delete(f'/{uuid7()}')
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert require_project().features == [TEST_FEATURE]
@@ -112,7 +117,7 @@ def test_delete_feature_missing():
 
 
 def test_add_task_to_feature():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.post(f'/{TEST_FEATURE.id}/task/{TEST_TASKS[1].id}')
     assert response.status_code == HTTPStatus.CREATED
     assert response.json() == feature_to_dict(require_project().features[0])
@@ -128,7 +133,7 @@ def test_add_task_to_missing_feature():
 
 
 def test_add_unknown_task_to_feature():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.post(f'/{TEST_FEATURE.id}/task/{uuid7()}')
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert require_project().features[0].tasks == [TEST_TASKS[0].id]
@@ -136,7 +141,7 @@ def test_add_unknown_task_to_feature():
 
 
 def test_add_existing_task_to_feature():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.post(f'/{TEST_FEATURE.id}/task/{TEST_TASKS[0].id}')
     assert response.status_code == HTTPStatus.CONFLICT
     assert require_project().features[0].tasks == [TEST_TASKS[0].id]
@@ -173,7 +178,7 @@ def test_remove_task_from_missing_feature():
 
 
 def test_remove_task_not_in_feature():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.delete(f'/{TEST_FEATURE.id}/task/{TEST_TASKS[1].id}')
     assert response.status_code == HTTPStatus.NOT_FOUND
     assert require_project().features[0].tasks == [TEST_TASKS[0].id]
@@ -194,7 +199,7 @@ def test_get_features_by_task():
 
 
 def test_get_features_by_task_none():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [TEST_FEATURE]))
+    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.get(f'/task/{TEST_TASKS[1].id}')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == []
