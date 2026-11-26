@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from ...definition.task import Task
 from ...definition.git_ref import GitRef
 from ...manager import task_manager
-from .common import require_project, find_task
+from .common import require_project
 
 router = APIRouter(prefix='/api/task', tags=['task'])
 
@@ -18,10 +18,11 @@ async def create_task(task: Task):
 
 @router.get('/{task_id}')
 async def get_task(task_id: UUID):
-    idx, task = find_task(task_id)
-    if task is not None:
-        return idx, task
-    raise HTTPException(HTTPStatus.NOT_FOUND, f'No task with id {task_id} was found')
+    require_project()
+    try:
+        return task_manager.get_task(task_id)
+    except LookupError as exc:
+        raise HTTPException(HTTPStatus.NOT_FOUND, str(exc))
 
 @router.post('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def update_task(task_id: UUID, task: Task):

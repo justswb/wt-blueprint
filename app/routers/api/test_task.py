@@ -38,6 +38,13 @@ def test_get_task():
     pass
 
 
+def test_get_task_missing():
+    load_project(Project(uuid7(), "test_task_proj"))
+    response = client.get(f'/{TEST_TASK.id}')
+    assert response.status_code == HTTPStatus.NOT_FOUND
+    pass
+
+
 def test_update_task():
     load_project(Project(uuid7(), "test_task_proj", [TEST_TASK]))
     request_json = task_to_dict(TEST_TASK)
