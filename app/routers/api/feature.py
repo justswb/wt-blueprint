@@ -58,7 +58,7 @@ async def delete_feature(feature_id: UUID):
     return require_project().features.pop(idx)
 
 
-@router.post('/{feature_id}/task/{task_id}', status_code=HTTPStatus.CREATED)
+@router.post('/{feature_id}/task/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def add_task_to_feature(feature_id: UUID, task_id: UUID):
     _, feature = require_feature(feature_id)
     require_tasks_exist([task_id])
