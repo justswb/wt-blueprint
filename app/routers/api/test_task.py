@@ -103,3 +103,12 @@ def test_task_without_git_ref():
     assert response.status_code == HTTPStatus.CREATED
     assert find_task(UUID(response.json()))[1].ref is None
     pass
+
+
+def test_task_git_ref_invalid_pr_rejected():
+    load_project(Project(uuid7(), "test_task_proj"))
+    before = len(require_project().tasks)
+    response = client.post('/', json={'name': 'a', 'ref': {'branch': 'feat/a', 'pr': 0}})
+    assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
+    assert len(require_project().tasks) == before
+    pass
