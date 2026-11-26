@@ -5,6 +5,7 @@
 |---|---|---|---|
 | Python | 3.15 (`requires-python >=3.15`) | 런타임 | PSF-2.0 |
 | uv | 0.13.6 | 의존성 설치·실행 | Apache-2.0 |
+| gh-stack | 0.3.0 | stacked PR 관리 (GitHub CLI 확장) | MIT |
 | fastapi[standard] | 0.165.0 | API 서버 | MIT |
 | pydantic | 2.14.4 | 데이터 모델 검증 (fastapi 의존성) | MIT |
 | httpx | 0.28.1 | `TestClient` 백엔드 | BSD-3-Clause |
