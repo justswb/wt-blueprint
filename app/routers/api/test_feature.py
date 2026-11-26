@@ -94,7 +94,6 @@ def test_delete_feature():
     response = client.delete(f'/{TEST_FEATURE.id}')
     assert response.status_code == HTTPStatus.ACCEPTED
     assert response.json() == feature_to_dict(TEST_FEATURE)
-    assert require_project().features == []
     pass
 
 
@@ -102,7 +101,6 @@ def test_delete_feature_missing():
     load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS, [], [new_test_feature()]))
     response = client.delete(f'/{uuid7()}')
     assert response.status_code == HTTPStatus.NOT_FOUND
-    assert require_project().features == [TEST_FEATURE]
     pass
 
 

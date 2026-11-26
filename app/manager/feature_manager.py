@@ -29,6 +29,11 @@ def update_feature(feature_id: UUID, feature: Feature) -> Feature:
     return feature
 
 
+def delete_feature(feature_id: UUID) -> Feature:
+    idx, _ = find_feature(feature_id)
+    return require_project().features.pop(idx)
+
+
 def require_tasks_exist(task_ids: list[UUID]) -> None:
     for task_id in task_ids:
         task_manager.find_task(task_id)

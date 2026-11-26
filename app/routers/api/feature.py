@@ -66,8 +66,9 @@ async def update_feature(feature_id: UUID, feature: Feature):
 
 @router.delete('/{feature_id}', status_code=HTTPStatus.ACCEPTED)
 async def delete_feature(feature_id: UUID):
-    idx, _ = require_feature(feature_id)
-    return require_project().features.pop(idx)
+    require_project()
+    with manager_errors():
+        return feature_manager.delete_feature(feature_id)
 
 
 @router.post('/{feature_id}/task/{task_id}', status_code=HTTPStatus.ACCEPTED)

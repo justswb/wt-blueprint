@@ -66,6 +66,21 @@ def test_update_feature_unknown_task_leaves_feature_unchanged():
     assert require_project().features[0].tasks == [TEST_TASKS[0].id]
 
 
+def test_delete_feature_removes_it():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    assert feature_manager.delete_feature(feature.id) is feature
+    assert require_project().features == []
+
+
+def test_delete_feature_missing_raises_lookup_error():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    with pytest.raises(LookupError):
+        feature_manager.delete_feature(uuid7())
+    assert require_project().features == [feature]
+
+
 def test_create_feature_unknown_task_raises_lookup_error():
     load_project(Project(uuid7(), 'p', TEST_TASKS))
     with pytest.raises(LookupError):
