@@ -5,6 +5,7 @@ from fastapi import APIRouter, HTTPException
 
 from ...definition.task import Task
 from ...definition.git_ref import GitRef
+from ...manager import task_manager
 from .common import require_project, find_task
 
 router = APIRouter(prefix='/api/task', tags=['task'])
@@ -12,8 +13,8 @@ router = APIRouter(prefix='/api/task', tags=['task'])
 
 @router.post('/', status_code=HTTPStatus.CREATED)
 async def create_task(task: Task):
-    require_project().tasks.append(task)
-    return task.id
+    require_project()
+    return task_manager.create_task(task)
 
 @router.get('/{task_id}')
 async def get_task(task_id: UUID):
