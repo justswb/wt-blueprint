@@ -17,12 +17,13 @@ UUID = uuid.UUID
 
 class CreateProjectReq(BaseModel):
     name: str
+    repo: str | None = None
     pass
 
 
 @router.post('/new', status_code=HTTPStatus.CREATED)
 async def create_project(req: CreateProjectReq):
-    return Project(uuid.uuid7(), req.name)
+    return Project(uuid.uuid7(), req.name, repo=req.repo)
 
 @router.post('/', response_class=RedirectResponse, status_code=HTTPStatus.SEE_OTHER)
 async def open_project(req: Project, host: Annotated[str, Header(include_in_schema=False)]):

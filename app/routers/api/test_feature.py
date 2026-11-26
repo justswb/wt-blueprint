@@ -2,39 +2,40 @@ from http import HTTPStatus
 from uuid import UUID, uuid7
 
 from fastapi.testclient import TestClient
+from pydantic import TypeAdapter
 
 from ...main import app
 from ...runtime import load_project
 from ...definition.project import Project
 from ...definition.task import Task
 from ...definition.feature import Feature
+from ...definition.git_ref import GitRef
 from .common import require_project
 
 client = TestClient(app, 'http://testserver/api/feature')
 
 
 TEST_TASKS = Task('a'), Task('b')
-TEST_FEATURE = Feature('test_feature_name', desc='test_feature_desc', tasks=[TEST_TASKS[0].id])
-TEST_FEATURE_JSON = {'name': 'test_feature_name', 'desc': 'test_feature_desc', 'tasks': [str(TEST_TASKS[0].id)]}
+TEST_FEATURE = Feature('test_feature_name', desc='test_feature_desc', tasks=[TEST_TASKS[0].id], ref=GitRef('feat/f', 7, 'b' * 40))
+TEST_FEATURE_JSON = {'name': 'test_feature_name', 'desc': 'test_feature_desc', 'tasks': [str(TEST_TASKS[0].id)], 'ref': {'branch': 'feat/f', 'pr': 7, 'merge_commit': 'b' * 40}}
 
 
 def new_test_feature() -> Feature:
     # fresh copy per test: routes mutate feature.tasks in place
-    return Feature(TEST_FEATURE.name, TEST_FEATURE.id, TEST_FEATURE.desc, list(TEST_FEATURE.tasks))
+    return Feature(TEST_FEATURE.name, TEST_FEATURE.id, TEST_FEATURE.desc, list(TEST_FEATURE.tasks),
+                   GitRef(TEST_FEATURE.ref.branch, TEST_FEATURE.ref.pr, TEST_FEATURE.ref.merge_commit))
 
 
 def feature_to_dict(f: Feature) -> dict:
-    d = vars(f).copy()
-    d['id'] = str(f.id)
-    d['tasks'] = [str(t) for t in f.tasks]
-    return d
+    return TypeAdapter(Feature).dump_python(f, mode='json')
 
 
 def test_create_feature():
     load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS))
     response = client.post('/', json=TEST_FEATURE_JSON)
     assert response.status_code == HTTPStatus.CREATED
-    expected = Feature(TEST_FEATURE_JSON['name'], UUID(response.json()), TEST_FEATURE_JSON['desc'], [TEST_TASKS[0].id])
+    expected = Feature(TEST_FEATURE_JSON['name'], UUID(response.json()), TEST_FEATURE_JSON['desc'], [TEST_TASKS[0].id],
+                       ref=GitRef('feat/f', 7, 'b' * 40))
     features = require_project().features
     assert features == [expected]
     pass
