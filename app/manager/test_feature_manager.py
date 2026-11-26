@@ -19,6 +19,18 @@ def test_create_feature_appends_and_returns_id():
     assert require_project().features == [feature]
 
 
+def test_get_feature_returns_feature():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    assert feature_manager.get_feature(feature.id) is feature
+
+
+def test_find_feature_missing_raises_lookup_error():
+    load_project(Project(uuid7(), 'p', TEST_TASKS))
+    with pytest.raises(LookupError):
+        feature_manager.find_feature(uuid7())
+
+
 def test_create_feature_unknown_task_raises_lookup_error():
     load_project(Project(uuid7(), 'p', TEST_TASKS))
     with pytest.raises(LookupError):

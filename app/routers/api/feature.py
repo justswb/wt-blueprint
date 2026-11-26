@@ -51,8 +51,9 @@ async def get_features_by_task(task_id: UUID):
 
 @router.get('/{feature_id}')
 async def get_feature(feature_id: UUID):
-    _, feature = require_feature(feature_id)
-    return feature
+    require_project()
+    with manager_errors():
+        return feature_manager.get_feature(feature_id)
 
 
 @router.post('/{feature_id}', status_code=HTTPStatus.ACCEPTED)
