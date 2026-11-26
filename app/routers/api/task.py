@@ -31,4 +31,9 @@ async def update_task(task_id: UUID, task: Task):
 @router.delete('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def delete_task(task_id: UUID):
     idx, _ = await get_task(task_id)
-    return require_project().tasks.pop(idx)
+    project = require_project()
+    task = project.tasks.pop(idx)
+    project.relations[:] = [r for r in project.relations if task_id not in r]
+    for feature in project.features:
+        feature.tasks[:] = [t for t in feature.tasks if t != task_id]
+    return task
