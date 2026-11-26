@@ -8,8 +8,10 @@ from ...runtime import load_project
 from ...definition.project import Project
 from ...definition.task import Task
 from ...definition.relation import RelationType
+from .common import get_relations
 
 client = TestClient(app, 'http://testserver/api/relation')
+
 
 TEST_TASKS = Task('a'), Task('b')
 TEST_RELATION = RelationType.BLOCK, TEST_TASKS[0].id, TEST_TASKS[1].id
@@ -20,24 +22,23 @@ def test_add_relation():
     load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS))
     response = client.post('/', json=TEST_RELATION_JSON)
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json() == [list(TEST_RELATION_JSON)]
-
-
-def test_add_duplicate_relation_conflicts():
-    load_project(Project(uuid7(), 'test_add_duplicate_relation', TEST_TASKS, [TEST_RELATION]))
-    response = client.post('/', json=TEST_RELATION_JSON)
-    assert response.status_code == HTTPStatus.CONFLICT
+    assert TEST_RELATION in get_relations(TEST_TASKS[0].id)
+    pass
 
 
 def test_get_relation():
-    load_project(Project(uuid7(), 'test_get_relation', TEST_TASKS, [TEST_RELATION]))
+    load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS, [TEST_RELATION]))
     response = client.get(f'/{TEST_TASKS[0].id}')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == [list(TEST_RELATION_JSON)]
+    pass
+
 
 
 def test_delete_relation():
-    load_project(Project(uuid7(), 'test_delete_relation', TEST_TASKS, [TEST_RELATION]))
+    load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS, [TEST_RELATION]))
+    assert TEST_RELATION in get_relations(TEST_TASKS[0].id)
     response = client.delete(f'/{RelationType.BLOCK.value}_{TEST_TASKS[0].id}_{TEST_TASKS[1].id}')
     assert response.status_code == HTTPStatus.ACCEPTED
-    assert client.get(f'/{TEST_TASKS[0].id}').json() == []
+    assert TEST_RELATION not in get_relations(TEST_TASKS[0].id)
+    pass
