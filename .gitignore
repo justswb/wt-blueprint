@@ -224,3 +224,6 @@ __marimo__/
 
 # Local tool notes
 TOOLS.md
+
+# Git worktrees
+.worktrees/
