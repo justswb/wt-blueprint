@@ -32,7 +32,7 @@ def test_create_project_with_repo(monkeypatch):
     monkeypatch.setattr(uuid, "uuid7", mockreturn)
     repo = "https://github.com/example/repo.git"
     response = client.post('/new', json={"name":TEST_PROJ_JSON["name"], "repo":repo})
-    assert response.status_code == HTTPStatus.CREATED.value
+    assert response.status_code == HTTPStatus.CREATED
     assert response.json()["repo"] == repo
     pass
 
