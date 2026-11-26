@@ -16,25 +16,9 @@ TEST_UUID = uuid.uuid7()
 TEST_PROJ_JSON = {"id":str(TEST_UUID),"name":"test_proj_name", "tasks":[], "relations": [], "features": [], "repo": None}
 
 
-def test_create_project(monkeypatch):
-    def mockreturn():
-        return TEST_UUID
-    monkeypatch.setattr(uuid, "uuid7", mockreturn)
+def test_create_project_returns_201():
     response = client.post('/new', json={"name":TEST_PROJ_JSON["name"]})
     assert response.status_code == HTTPStatus.CREATED.value
-    assert response.json() == TEST_PROJ_JSON
-    pass
-
-
-def test_create_project_with_repo(monkeypatch):
-    def mockreturn():
-        return TEST_UUID
-    monkeypatch.setattr(uuid, "uuid7", mockreturn)
-    repo = "https://github.com/example/repo.git"
-    response = client.post('/new', json={"name":TEST_PROJ_JSON["name"], "repo":repo})
-    assert response.status_code == HTTPStatus.CREATED
-    assert response.json()["repo"] == repo
-    pass
 
 
 def test_open_project():

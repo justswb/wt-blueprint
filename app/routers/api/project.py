@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from ...runtime import load_project
 from ...definition.project import Project
+from ...manager import project_manager
 from .common import require_project
 
 router = APIRouter(prefix='/api/project', tags=['project'])
@@ -23,7 +24,7 @@ class CreateProjectReq(BaseModel):
 
 @router.post('/new', status_code=HTTPStatus.CREATED)
 async def create_project(req: CreateProjectReq):
-    return Project(uuid.uuid7(), req.name, repo=req.repo)
+    return project_manager.create_project(req.name, repo=req.repo)
 
 @router.post('/', response_class=RedirectResponse, status_code=HTTPStatus.SEE_OTHER)
 async def open_project(req: Project, host: Annotated[str, Header(include_in_schema=False)]):
