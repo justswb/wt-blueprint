@@ -1,0 +1,26 @@
+import pytest
+from uuid import uuid7
+
+from ..runtime import load_project, require_project
+from ..definition.project import Project
+from ..definition.task import Task
+from ..definition.feature import Feature
+from ..definition.git_ref import GitRef
+from . import feature_manager
+
+
+TEST_TASKS = Task('a'), Task('b')
+
+
+def test_create_feature_appends_and_returns_id():
+    load_project(Project(uuid7(), 'p', TEST_TASKS))
+    feature = Feature('f', tasks=[TEST_TASKS[0].id], ref=GitRef('feat/f', 7, 'b' * 40))
+    assert feature_manager.create_feature(feature) == feature.id
+    assert require_project().features == [feature]
+
+
+def test_create_feature_unknown_task_raises_lookup_error():
+    load_project(Project(uuid7(), 'p', TEST_TASKS))
+    with pytest.raises(LookupError):
+        feature_manager.create_feature(Feature('f', tasks=[uuid7()]))
+    assert require_project().features == []

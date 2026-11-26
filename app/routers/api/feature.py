@@ -1,12 +1,24 @@
+from contextlib import contextmanager
 from http import HTTPStatus
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
 from ...definition.feature import Feature
+from ...manager import feature_manager
 from .common import require_project, find_task, find_feature, get_features
 
 router = APIRouter(prefix='/api/feature', tags=['feature'])
+
+
+@contextmanager
+def manager_errors():
+    try:
+        yield
+    except LookupError as exc:
+        raise HTTPException(HTTPStatus.NOT_FOUND, str(exc))
+    except ValueError as exc:
+        raise HTTPException(HTTPStatus.CONFLICT, str(exc))
 
 
 def require_tasks_exist(task_ids: list[UUID]):
@@ -27,9 +39,9 @@ def require_feature(feature_id: UUID) -> tuple[int, Feature]:
 
 @router.post('/', status_code=HTTPStatus.CREATED)
 async def create_feature(feature: Feature):
-    require_tasks_exist(feature.tasks)
-    require_project().features.append(feature)
-    return feature.id
+    require_project()
+    with manager_errors():
+        return feature_manager.create_feature(feature)
 
 
 @router.get('/task/{task_id}')
