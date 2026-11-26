@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 
 from ...definition.task import Task
+from ...definition.git_ref import GitRef
 from .common import require_project, find_task
 
 router = APIRouter(prefix='/api/task', tags=['task'])
@@ -24,6 +25,11 @@ async def get_task(task_id: UUID):
 @router.post('/{task_id}', status_code=HTTPStatus.ACCEPTED)
 async def update_task(task_id: UUID, task: Task):
     idx, task_prev = await get_task(task_id)
+    if task_prev.status == Task.Status.DONE:
+        if task.status == Task.Status.DONE:
+            raise HTTPException(HTTPStatus.FORBIDDEN, 'Cannot update done task')
+        task.ref = GitRef(task.ref.branch, None, None)
+        pass
     task.id = task_prev.id
     require_project().tasks[idx] = task
     return task
