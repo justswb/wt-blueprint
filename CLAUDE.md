@@ -7,14 +7,13 @@
 - 위임 결과는 메인 세션이 검토하지 않고 CI와 PR 리뷰로 확인한다.
 - `.worktrees/`는 git으로 추적하지 않는다.
 
-## PR 순서·의존 관계
+## PR 순서·stack
 - 각 작업이 끝나면 PR을 올리고, 리뷰를 기다리지 않고 다음 작업을 시작한다.
-- 앞 작업에 의존하는 작업은 앞 작업 브랜치에서 새로 브랜치를 만든다. 의존이 없으면 상위 feat 브랜치에서 만든다.
-- PR 대상(base)은 의존 여부와 상관없이 항상 상위 feat 브랜치로 한다.
-- 모든 PR은 본문 맨 위에 PR stack을 적어 순서를 알 수 있게 한다. 같은 상위 feat 브랜치의 PR을 의존 순서대로 나열하고(예: `#1 → #3 → #5`, 갈라지면 `#1 → #3 / #4`) 현재 PR을 굵게 표시한다.
-- 앞 PR이 merge되기 전에는 diff에 앞 PR의 변경도 함께 보인다는 점을 stack 아래에 적는다.
-- PR이 추가되거나 merge되면 stack에 있는 모든 PR 본문을 갱신한다.
-- 브랜치를 맞출 때는 merge를 쓴다. rebase와 강제 push는 사용자가 허용한 경우에만 한다.
+- 상위 feat 브랜치의 하위 작업 PR은 GitHub stacked PR(`gh stack`)로 한 줄로 쌓는다. stack의 trunk는 상위 feat 브랜치로 한다(`gh stack init --base <feat 브랜치>`). 서로 의존하지 않는 작업도 같은 stack에 순서대로 쌓는다.
+- 각 PR의 base는 바로 아래 PR의 브랜치이고, 맨 아래 PR의 base는 상위 feat 브랜치다. 순서는 GitHub stack으로 보이므로 PR 본문에 따로 적지 않는다.
+- 첫 하위 작업 PR이 상위 feat 브랜치에 merge되면 상위 feat 브랜치 → `main` PR을 draft로 연다. 이 PR은 stack에 넣지 않는다. 마지막 하위 작업 PR이 merge되면 ready로 바꾼다.
+- 레포 공통 작업은 stack 없이 `main` 대상 PR로 올린다.
+- stack 브랜치를 맞출 때는 `gh stack sync`나 `gh stack rebase`를 쓰고, 이때의 rebase와 `--force-with-lease` push는 허용한다. 그 밖에는 merge를 쓰고, rebase와 강제 push는 사용자가 허용한 경우에만 한다.
 
 ## 커밋 author·committer
 - author는 실제로 작업한 모델로 지정한다. 예: `Claude Opus 5.5 <noreply@anthropic.com>`, `Claude Haiku 5.5 <noreply@anthropic.com>`
@@ -28,6 +27,7 @@
   - PR이 merge되거나 닫혔는지
   - CI 실패
 - Monitor가 만료되면 다시 건다. 열린 PR이 모두 merge되거나 닫히면 감시를 끝낸다.
-- PR에 리뷰, 리뷰 코멘트, 댓글이 달리면 따로 지시가 없어도 대응한다.
+- PR에 리뷰, 리뷰 코멘트, 댓글이 달리면 따로 지시가 없어도 그 PR을 구현한 subagent를 다시 불러 대응을 맡긴다. 그 subagent가 없으면 새 subagent에 맡긴다.
+- PR 코멘트 대응은 사용자에게 따로 알리지 않는다.
 - 리뷰 코멘트를 반영해 수정했으면 그 스레드에 수정 커밋 링크를 답글로 남긴다.
 - 내가 다는 답글은 `🤖 Claude:`로 시작해서 사용자 댓글과 구분한다.
