@@ -16,13 +16,14 @@ client = TestClient(app, 'http://testserver/api/feature')
 
 
 TEST_TASKS = Task('a'), Task('b')
-TEST_FEATURE = Feature('test_feature_name', desc='test_feature_desc', tasks=[TEST_TASKS[0].id])
-TEST_FEATURE_JSON = {'name': 'test_feature_name', 'desc': 'test_feature_desc', 'tasks': [str(TEST_TASKS[0].id)], 'ref': None}
+TEST_FEATURE = Feature('test_feature_name', desc='test_feature_desc', tasks=[TEST_TASKS[0].id], ref=GitRef('feat/f', 7, 'b' * 40))
+TEST_FEATURE_JSON = {'name': 'test_feature_name', 'desc': 'test_feature_desc', 'tasks': [str(TEST_TASKS[0].id)], 'ref': {'branch': 'feat/f', 'pr': 7, 'merge_commit': 'b' * 40}}
 
 
 def new_test_feature() -> Feature:
     # fresh copy per test: routes mutate feature.tasks in place
-    return Feature(TEST_FEATURE.name, TEST_FEATURE.id, TEST_FEATURE.desc, list(TEST_FEATURE.tasks))
+    return Feature(TEST_FEATURE.name, TEST_FEATURE.id, TEST_FEATURE.desc, list(TEST_FEATURE.tasks),
+                   GitRef(TEST_FEATURE.ref.branch, TEST_FEATURE.ref.pr, TEST_FEATURE.ref.merge_commit))
 
 
 def feature_to_dict(f: Feature) -> dict:
@@ -33,7 +34,8 @@ def test_create_feature():
     load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS))
     response = client.post('/', json=TEST_FEATURE_JSON)
     assert response.status_code == HTTPStatus.CREATED
-    expected = Feature(TEST_FEATURE_JSON['name'], UUID(response.json()), TEST_FEATURE_JSON['desc'], [TEST_TASKS[0].id])
+    expected = Feature(TEST_FEATURE_JSON['name'], UUID(response.json()), TEST_FEATURE_JSON['desc'], [TEST_TASKS[0].id],
+                       ref=GitRef('feat/f', 7, 'b' * 40))
     features = require_project().features
     assert features == [expected]
     pass
@@ -199,24 +201,4 @@ def test_get_features_by_task_none():
     response = client.get(f'/task/{TEST_TASKS[1].id}')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == []
-    pass
-
-
-def test_feature_git_ref():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS))
-    ref_json = {'branch': 'feat/f', 'pr': 7, 'merge_commit': 'b' * 40}
-    response = client.post('/', json={**TEST_FEATURE_JSON, 'ref': ref_json})
-    assert response.status_code == HTTPStatus.CREATED
-    feature_id = response.json()
-    assert require_project().features[0].ref == GitRef('feat/f', 7, 'b' * 40)
-    response = client.get(f'/{feature_id}')
-    assert response.json()['ref'] == ref_json
-    pass
-
-
-def test_feature_git_ref_branch_only():
-    load_project(Project(uuid7(), 'test_feature_proj', TEST_TASKS))
-    response = client.post('/', json={**TEST_FEATURE_JSON, 'ref': {'branch': 'feat/f'}})
-    assert response.status_code == HTTPStatus.CREATED
-    assert require_project().features[0].ref == GitRef('feat/f')
     pass
