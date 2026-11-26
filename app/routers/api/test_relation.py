@@ -8,7 +8,6 @@ from ...runtime import load_project
 from ...definition.project import Project
 from ...definition.task import Task
 from ...definition.relation import RelationType
-from .common import get_relations
 
 client = TestClient(app, 'http://testserver/api/relation')
 
@@ -18,27 +17,23 @@ TEST_RELATION = RelationType.BLOCK, TEST_TASKS[0].id, TEST_TASKS[1].id
 TEST_RELATION_JSON = RelationType.BLOCK.value, str(TEST_TASKS[0].id), str(TEST_TASKS[1].id)
 
 
-def test_add_relation():
-    load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS))
+def test_add_relation_endpoint():
+    load_project(Project(uuid7(), 'test_add_relation_endpoint', TEST_TASKS))
     response = client.post('/', json=TEST_RELATION_JSON)
     assert response.status_code == HTTPStatus.CREATED
-    assert TEST_RELATION in get_relations(TEST_TASKS[0].id)
-    pass
+    response = client.post('/', json=TEST_RELATION_JSON)
+    assert response.status_code == HTTPStatus.CONFLICT
 
 
-def test_get_relation():
-    load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS, [TEST_RELATION]))
+def test_get_relation_endpoint():
+    load_project(Project(uuid7(), 'test_get_relation_endpoint', TEST_TASKS, [TEST_RELATION]))
     response = client.get(f'/{TEST_TASKS[0].id}')
     assert response.status_code == HTTPStatus.OK
     assert response.json() == [list(TEST_RELATION_JSON)]
-    pass
 
 
-
-def test_delete_relation():
-    load_project(Project(uuid7(), 'test_add_relation', TEST_TASKS, [TEST_RELATION]))
-    assert TEST_RELATION in get_relations(TEST_TASKS[0].id)
+def test_delete_relation_endpoint():
+    load_project(Project(uuid7(), 'test_delete_relation_endpoint', TEST_TASKS, [TEST_RELATION]))
     response = client.delete(f'/{RelationType.BLOCK.value}_{TEST_TASKS[0].id}_{TEST_TASKS[1].id}')
     assert response.status_code == HTTPStatus.ACCEPTED
-    assert TEST_RELATION not in get_relations(TEST_TASKS[0].id)
-    pass
+    assert client.get(f'/{TEST_TASKS[0].id}').json() == []
