@@ -33,5 +33,5 @@ async def delete_task(task_id: UUID):
     idx, _ = await get_task(task_id)
     project = require_project()
     task = project.tasks.pop(idx)
-    project.relations = [r for r in project.relations if task_id not in r]
+    project.relations[:] = [r for r in project.relations if task_id not in r]
     return task
