@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from .definition.project import Project
 
 _project: Project | None = None

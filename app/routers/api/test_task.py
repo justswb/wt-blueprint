@@ -42,11 +42,37 @@ def test_get_task():
 
 def test_update_task():
     load_project(Project(uuid7(), "test_task_proj", [TEST_TASK]))
-    request_json = {k: v for k, v in task_to_dict(TEST_TASK).items() if k != 'id'}
+    request_json = task_to_dict(TEST_TASK)
     request_json['name'] = 'mutation_task_name'
     response = client.post(f'/{TEST_TASK.id}', json=request_json)
     assert response.status_code == HTTPStatus.ACCEPTED
     assert find_task(TEST_TASK.id)[1].name == request_json['name']
+    pass
+
+
+def test_update_done_task_to_done_rejected():
+    done_task = Task('test_update_done_task_rejected', status=Task.Status.DONE)
+    load_project(Project(uuid7(), "test_task_proj", [done_task]))
+    request_json = task_to_dict(done_task)
+    request_json['name'] = 'mutation_task_name'
+    response = client.post(f'/{done_task.id}', json=request_json)
+    assert response.status_code == HTTPStatus.FORBIDDEN
+    assert find_task(done_task.id)[1] == done_task
+    pass
+
+
+def test_update_done_task_to_previous_status():
+    done_task = Task('test_update_done_task_rejected', status=Task.Status.DONE, ref=TEST_TASK.ref)
+    load_project(Project(uuid7(), "test_task_proj", [done_task]))
+    request_json = task_to_dict(done_task)
+    request_json['name'] = 'mutation_task_name'
+    request_json['status'] = Task.Status.IN_PROGRESS.value
+    response = client.post(f'/{done_task.id}', json=request_json)
+    assert response.status_code == HTTPStatus.ACCEPTED
+    _, target_task = find_task(done_task.id)
+    assert target_task.name == request_json['name']
+    assert target_task.status == Task.Status.IN_PROGRESS
+    assert target_task.ref == GitRef(request_json['ref']['branch'], None, None)
     pass
 
 
