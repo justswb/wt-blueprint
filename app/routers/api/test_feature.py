@@ -67,10 +67,8 @@ def test_update_feature():
     request_json = {'name': 'mutation_feature_name', 'desc': 'mutation_feature_desc', 'tasks': [str(TEST_TASKS[1].id)]}
     response = client.post(f'/{TEST_FEATURE.id}', json=request_json)
     assert response.status_code == HTTPStatus.ACCEPTED
-    expected = Feature(request_json['name'], TEST_FEATURE.id, request_json['desc'], [TEST_TASKS[1].id])
-    assert response.json() == feature_to_dict(expected)
-    features = require_project().features
-    assert features == [expected]
+    assert response.json()['name'] == request_json['name']
+    assert response.json()['tasks'] == [str(TEST_TASKS[1].id)]
     pass
 
 

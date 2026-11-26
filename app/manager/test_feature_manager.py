@@ -42,6 +42,30 @@ def test_get_features_by_task_returns_matching_features():
     assert feature_manager.get_features_by_task(uuid7()) == []
 
 
+def test_update_feature_keeps_id():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    replacement = Feature('new', desc='new desc', tasks=[TEST_TASKS[1].id])
+    result = feature_manager.update_feature(feature.id, replacement)
+    assert result is replacement
+    assert replacement.id == feature.id
+    assert require_project().features == [replacement]
+
+
+def test_update_feature_missing_raises_lookup_error():
+    load_project(Project(uuid7(), 'p', TEST_TASKS))
+    with pytest.raises(LookupError):
+        feature_manager.update_feature(uuid7(), Feature('f'))
+
+
+def test_update_feature_unknown_task_leaves_feature_unchanged():
+    feature = Feature('f', tasks=[TEST_TASKS[0].id])
+    load_project(Project(uuid7(), 'p', TEST_TASKS, [], [feature]))
+    with pytest.raises(LookupError):
+        feature_manager.update_feature(feature.id, Feature('new', tasks=[uuid7()]))
+    assert require_project().features[0].tasks == [TEST_TASKS[0].id]
+
+
 def test_create_feature_unknown_task_raises_lookup_error():
     load_project(Project(uuid7(), 'p', TEST_TASKS))
     with pytest.raises(LookupError):
