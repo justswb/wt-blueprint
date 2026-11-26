@@ -1,13 +1,15 @@
 from http import HTTPStatus
-from uuid import uuid7
+from uuid import UUID, uuid7
 
 from fastapi.testclient import TestClient
+from pydantic import TypeAdapter
 
 from ...main import app
 from ...runtime import load_project
 from ...definition.project import Project
 from ...definition.task import Task
 from ...definition.feature import Feature
+from ...definition.git_ref import GitRef
 from ...definition.relation import RelationType
 from .common import find_task, get_relations, require_project
 
@@ -16,10 +18,7 @@ client = TestClient(app, 'http://testserver/api/task')
 
 TEST_TASK = Task("test_task_name", uuid7(), "test_task_desc", Task.Status.DRAFT)
 def task_to_dict(t: Task) -> dict:
-    d = vars(t).copy()
-    d['id'] = str(t.id)
-    d['status'] = t.status.value
-    return d
+    return TypeAdapter(Task).dump_python(t, mode='json')
 
 
 def test_create_task():
@@ -83,4 +82,24 @@ def test_delete_task_removes_relations():
     assert response.status_code == HTTPStatus.ACCEPTED
     assert get_relations(a.id) == []
     assert relation_bc in get_relations(b.id)
+    pass
+
+
+def test_task_git_ref():
+    load_project(Project(uuid7(), "test_task_proj"))
+    ref = GitRef('feat/a', 3, 'a' * 40)
+    response = client.post('/', json={'name': 'a', 'ref': {'branch': ref.branch, 'pr': ref.pr, 'merge_commit': ref.merge_commit}})
+    assert response.status_code == HTTPStatus.CREATED
+    _, task = find_task(UUID(response.json()))
+    assert task.ref == ref
+    response = client.get(f'/{task.id}')
+    assert response.json()[1]['ref'] == {'branch': 'feat/a', 'pr': 3, 'merge_commit': 'a' * 40}
+    pass
+
+
+def test_task_without_git_ref():
+    load_project(Project(uuid7(), "test_task_proj"))
+    response = client.post('/', json={'name': 'a'})
+    assert response.status_code == HTTPStatus.CREATED
+    assert find_task(UUID(response.json()))[1].ref is None
     pass

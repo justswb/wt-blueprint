@@ -12,4 +12,5 @@ class Project:
     tasks: list[Task] = field(default_factory=list)
     relations: list[Relation] = field(default_factory=list)
     features: list[Feature] = field(default_factory=list)
+    repo: str | None = None
     pass

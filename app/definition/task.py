@@ -5,6 +5,8 @@ from uuid import UUID, uuid7
 from pydantic.json_schema import SkipJsonSchema
 from pydantic.dataclasses import dataclass
 
+from .git_ref import GitRef
+
 @dataclass
 class Task:
     class Status(Enum):
@@ -19,4 +21,5 @@ class Task:
     id: SkipJsonSchema[UUID] = field(default_factory=uuid7)
     desc: str = ''
     status: Status = Status.DRAFT
+    ref: GitRef | None = None
     pass
