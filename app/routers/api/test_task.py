@@ -7,7 +7,8 @@ from ...main import app
 from ...runtime import load_project
 from ...definition.project import Project
 from ...definition.task import Task
-from .common import find_task
+from ...definition.relation import RelationType
+from .common import find_task, require_project
 
 client = TestClient(app, 'http://testserver/api/task')
 
@@ -52,4 +53,22 @@ def test_delete_task():
     response = client.delete(f'/{TEST_TASK.id}')
     assert response.status_code == HTTPStatus.ACCEPTED
     assert find_task(TEST_TASK.id) == (-1, None)
+    pass
+
+
+def test_delete_task_removes_relations():
+    a = Task("task_a", uuid7(), "task_a_desc", Task.Status.DRAFT)
+    b = Task("task_b", uuid7(), "task_b_desc", Task.Status.DRAFT)
+    c = Task("task_c", uuid7(), "task_c_desc", Task.Status.DRAFT)
+    relation_bc = (RelationType.BLOCK, b.id, c.id)
+    load_project(Project(uuid7(), "test_task_proj", [a, b, c], [
+        (RelationType.BLOCK, a.id, b.id),
+        (RelationType.BLOCK, c.id, a.id),
+        relation_bc,
+    ]))
+    response = client.delete(f'/{a.id}')
+    assert response.status_code == HTTPStatus.ACCEPTED
+    relations = require_project().relations
+    assert all(a.id not in r for r in relations)
+    assert relation_bc in relations
     pass
